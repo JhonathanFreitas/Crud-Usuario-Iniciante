@@ -1,0 +1,45 @@
+.cabecalho-listagem {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  margin-bottom: 24px;
+}
+
+.cabecalho-listagem h2 {
+  margin: 0;
+}
+
+.cabecalho-listagem .campo-busca {
+  position: relative;
+  flex: 1 1 0;
+  min-width: 0;
+  max-width: none;
+  margin: 0;
+}
+
+.campo-busca input {
+  display: block;
+  width: 100%;
+  max-width: none;
+  padding-left: 42px;
+}
+
+.icone-busca {
+  position: absolute;
+  left: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--texto-secundario);
+  pointer-events: none;
+}
+
+@media (max-width: 600px) {
+  .cabecalho-listagem {
+    gap: 12px;
+  }
+
+  .cabecalho-listagem h2 {
+    max-width: 42%;
+    font-size: 18px;
+  }
+}

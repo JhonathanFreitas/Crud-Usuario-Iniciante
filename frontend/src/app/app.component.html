@@ -1,0 +1,121 @@
+<main class="container">
+  <header class="cabecalho-lista">
+    <h1>Gerenciamento de usuários</h1>
+    <button type="button" (click)="novoUsuario()">
+      Cadastrar usuário
+    </button>
+  </header>
+
+  <!-- Mostra mensagens de sucesso ou erro. -->
+  <p class="mensagem" role="status" *ngIf="mensagem">{{ mensagem }}</p>
+
+  <!-- A lista permanece visível atrás do popup. -->
+  <section class="listagem">
+    <div class="cabecalho-listagem">
+      <h2>Usuários cadastrados</h2>
+      <div class="campo campo-busca">
+        <svg class="icone-busca" width="20" height="20" viewBox="0 0 24 24"
+          fill="none" stroke="currentColor" stroke-width="1.8"
+          stroke-linecap="round" aria-hidden="true" focusable="false">
+          <circle cx="10.5" cy="10.5" r="6.5" />
+          <path d="m16 16 4.5 4.5" />
+        </svg>
+        <input id="busca-nome" name="buscaNome" type="search"
+          aria-label="Buscar por nome de usuario"
+          placeholder="Buscar por nome de usuario" [(ngModel)]="buscaNome"
+          (ngModelChange)="listarUsuarios()" />
+      </div>
+    </div>
+    <p class="erro" role="alert" *ngIf="erroListagem">{{ erroListagem }}</p>
+    <p class="lista-vazia" role="status" *ngIf="carregandoUsuarios">Buscando usuários...</p>
+    <p class="lista-vazia" role="status" *ngIf="!carregandoUsuarios && !erroListagem && usuarios.length === 0">
+      {{ buscaNome.trim() ? "Nenhum usuário encontrado para essa busca." : "Nenhum usuário cadastrado." }}
+    </p>
+    <div class="tabela-container" *ngIf="!carregandoUsuarios && !erroListagem && usuarios.length > 0">
+      <table>
+        <thead>
+          <tr>
+            <th scope="col">ID</th>
+            <th scope="col">Nome</th>
+            <th scope="col">E-mail</th>
+            <th scope="col">Status</th>
+            <th scope="col">Ações</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let item of usuarios">
+            <td>{{ item.id }}</td>
+            <td>{{ item.nome }}</td>
+            <td>{{ item.email }}</td>
+            <td><span class="status" [class.inativo]="!item.ativo">{{ item.ativo ? "Ativo" : "Inativo" }}</span></td>
+            <td>
+              <div class="acoes-tabela">
+                <button type="button" class="btn-editar" (click)="editarUsuario(item)">Editar</button>
+                <button type="button" class="btn-excluir" (click)="excluirUsuario(item)">Excluir</button>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- O diálogo nativo controla foco, teclado e bloqueio da tela de fundo. -->
+  <dialog *ngIf="mostrarFormulario" #popup class="modal"
+    aria-labelledby="titulo-formulario"
+    (cancel)="$event.preventDefault(); fecharFormulario()">
+    <div class="cabecalho-modal">
+      <h2 id="titulo-formulario">{{ editando ? "Editar usuário" : "Cadastrar usuário" }}</h2>
+      <button type="button" class="btn-fechar" aria-label="Fechar formulário"
+        (click)="fecharFormulario()" [disabled]="salvando">&times;</button>
+    </div>
+    <p class="erro" role="alert" *ngIf="erroFormulario">{{ erroFormulario }}</p>
+    <!-- ngModel conecta os campos ao objeto usuario. -->
+    <form #formUsuario="ngForm" (ngSubmit)="formUsuario.valid && salvarUsuario()">
+      <div class="campo">
+        <label for="nome">Nome</label>
+        <input id="nome" name="nome" type="text" [(ngModel)]="usuario.nome" required autofocus [disabled]="salvando" />
+      </div>
+      <div class="campo">
+        <label for="email">E-mail</label>
+        <input id="email" name="email" type="email" [(ngModel)]="usuario.email" required email [disabled]="salvando" />
+      </div>
+      <div class="campo-checkbox">
+        <input id="ativo" name="ativo" type="checkbox" [(ngModel)]="usuario.ativo" [disabled]="salvando" />
+        <label for="ativo">Usuário ativo</label>
+      </div>
+      <div class="acoes-formulario">
+        <button type="button" class="btn-secundario" (click)="fecharFormulario()" [disabled]="salvando">Cancelar</button>
+        <button type="submit" [disabled]="formUsuario.invalid || salvando">
+          {{ salvando ? "Salvando..." : (editando ? "Salvar alterações" : "Cadastrar") }}
+        </button>
+      </div>
+    </form>
+  </dialog>
+  <dialog *ngIf="usuarioParaExcluir" #popupExclusao class="modal modal-exclusao"
+    aria-labelledby="titulo-exclusao" aria-describedby="descricao-exclusao"
+    [attr.aria-busy]="excluindo"
+    (cancel)="$event.preventDefault(); cancelarExclusao()">
+    <div class="cabecalho-modal">
+      <h2 id="titulo-exclusao">Excluir usuário?</h2>
+      <button type="button" class="btn-fechar" aria-label="Cancelar exclusão"
+        (click)="cancelarExclusao()" [disabled]="excluindo">&times;</button>
+    </div>
+    <p id="descricao-exclusao" class="descricao-exclusao">
+      Você está prestes a excluir este usuário. Essa ação não pode ser desfeita.
+    </p>
+    <div class="usuario-exclusao">
+      <strong>{{ usuarioParaExcluir.nome }}</strong>
+      <span>{{ usuarioParaExcluir.email }}</span>
+    </div>
+    <p class="erro" role="alert" *ngIf="erroExclusao">{{ erroExclusao }}</p>
+    <div class="acoes-formulario">
+      <button type="button" class="btn-secundario" autofocus
+        (click)="cancelarExclusao()" [disabled]="excluindo">Cancelar</button>
+      <button type="button" class="btn-confirmar-exclusao"
+        (click)="confirmarExclusao()" [disabled]="excluindo">
+        {{ excluindo ? "Excluindo..." : "Sim, excluir" }}
+      </button>
+    </div>
+  </dialog>
+</main>

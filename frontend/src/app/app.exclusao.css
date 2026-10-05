@@ -1,0 +1,36 @@
+﻿/* Confirmação de exclusão. */
+.modal-exclusao {
+  max-width: 440px;
+}
+
+.modal-exclusao .cabecalho-modal {
+  margin-bottom: 18px;
+}
+
+.descricao-exclusao {
+  margin: 0 0 20px;
+  color: var(--texto-secundario);
+  line-height: 1.6;
+}
+
+.usuario-exclusao {
+  display: grid;
+  gap: 6px;
+  padding: 16px;
+  margin-bottom: 24px;
+  border: 1px solid var(--borda);
+  border-radius: 8px;
+  background: var(--fundo);
+  overflow-wrap: anywhere;
+}
+
+.usuario-exclusao span {
+  color: var(--texto-secundario);
+  font-size: 14px;
+}
+
+.btn-confirmar-exclusao {
+  background: #a33a3a;
+}
+
+
